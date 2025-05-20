@@ -7,16 +7,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Skeleton } from "@/components/ui/skeleton"
 import { FileIcon, Download, ExternalLink, ImageIcon, File } from "lucide-react"
 import Image from "next/image"
-import type { FileAttachment } from "@/lib/types"
+import type { FileAttachment as FileAttachmentType } from "@/lib/types"
 
 interface FileAttachmentProps {
-  attachment: FileAttachment
+  attachment: FileAttachmentType
   isIncoming?: boolean
 }
 
 export function FileAttachment({ attachment, isIncoming = false }: FileAttachmentProps) {
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
+  const [isFullImageLoaded, setIsFullImageLoaded] = useState(false)
 
   const isImage = attachment.file_type.startsWith("image/")
   const isPdf = attachment.file_type === "application/pdf"
@@ -46,6 +47,9 @@ export function FileAttachment({ attachment, isIncoming = false }: FileAttachmen
     document.body.removeChild(link)
   }
 
+  // Use thumbnail for preview if available, otherwise use the original file
+  const previewUrl = attachment.thumbnail_url || attachment.file_url
+
   return (
     <>
       <Card
@@ -55,7 +59,7 @@ export function FileAttachment({ attachment, isIncoming = false }: FileAttachmen
           <div className="space-y-2">
             <div className="relative aspect-video w-full overflow-hidden rounded-md bg-muted">
               <Image
-                src={attachment.file_url || "/placeholder.svg"}
+                src={previewUrl || "/placeholder.svg"}
                 alt={attachment.file_name}
                 fill
                 className="object-cover cursor-pointer"
@@ -126,11 +130,24 @@ export function FileAttachment({ attachment, isIncoming = false }: FileAttachmen
               </DialogDescription>
             </DialogHeader>
             <div className="relative aspect-auto max-h-[70vh] w-full overflow-hidden rounded-md">
+              {/* Show thumbnail while full image loads */}
+              {!isFullImageLoaded && attachment.thumbnail_url && (
+                <Image
+                  src={attachment.thumbnail_url || "/placeholder.svg"}
+                  alt={`${attachment.file_name} (loading)`}
+                  className="object-contain blur-sm"
+                  fill
+                />
+              )}
               <Image
                 src={attachment.file_url || "/placeholder.svg"}
                 alt={attachment.file_name}
-                className="object-contain"
+                className={`object-contain transition-opacity duration-300 ${
+                  isFullImageLoaded ? "opacity-100" : "opacity-0"
+                }`}
                 fill
+                onLoad={() => setIsFullImageLoaded(true)}
+                priority
               />
             </div>
             <div className="flex justify-end gap-2">
