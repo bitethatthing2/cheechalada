@@ -1,10 +1,10 @@
-// This file uses next/headers and should ONLY be imported in Server Components
-import { createServerClient as createSupabaseServerClient } from "@supabase/ssr"
+// This file is ONLY for use in Server Components and Server Actions
 import { cookies } from "next/headers"
+import { createServerClient as createSupabaseServerClient } from "@supabase/ssr"
 
 // Server-only client that requires next/headers
-export async function createClient() {
-  const cookieStore = await cookies()
+export async function createServerActionClient() {
+  const cookieStore = cookies()
 
   return createSupabaseServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
@@ -24,8 +24,8 @@ export async function createClient() {
   })
 }
 
-// Add the named export for compatibility
-export const createServerClient = createClient
-
-// DO NOT add re-exports from client-browser here
-// This would cause next/headers to be imported in client components
+// Admin functions that use server-side features
+export async function getServerSideAdminData() {
+  const supabase = await createServerActionClient()
+  // Implementation...
+}

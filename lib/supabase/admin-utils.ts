@@ -1,3 +1,4 @@
+// Use the browser-safe client instead of the server client
 import { createClient as createClientBrowser } from "@/lib/supabase/client-browser"
 
 // List of admin email addresses

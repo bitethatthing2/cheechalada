@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/client"
-import { createServerClient } from "@/lib/supabase/server"
+// Use the browser-safe client instead of the server client
+import { createClient } from "@/lib/supabase/client-browser"
 import type { User } from "@supabase/supabase-js"
 
 export interface SecurityTestItem {
@@ -99,7 +99,8 @@ export async function deleteSecurityTestItem(id: string) {
  * This bypasses RLS and should only be used by admins
  */
 export async function getAllSecurityTestItemsAsAdmin() {
-  const supabase = await createServerClient()
+  // Use the browser-safe client
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("security_test_table")
