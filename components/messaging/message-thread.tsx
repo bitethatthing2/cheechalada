@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import { Check, CheckCheck } from "lucide-react"
 import type { DirectMessage, Profile } from "@/lib/types"
 
 interface MessageThreadProps {
@@ -74,6 +75,9 @@ export function MessageThread({ messages, currentUser, isLoading }: MessageThrea
           {dateMessages.map((message, index) => {
             const isCurrentUser = message.sender_id === currentUser?.id
             const showAvatar = index === 0 || dateMessages[index - 1]?.sender_id !== message.sender_id
+            const isLastMessage = index === dateMessages.length - 1
+            const isLastMessageOfSender =
+              index === dateMessages.length - 1 || dateMessages[index + 1]?.sender_id !== message.sender_id
 
             return (
               <div key={message.id} className={cn("flex", isCurrentUser ? "justify-end" : "justify-start")}>
@@ -102,13 +106,26 @@ export function MessageThread({ messages, currentUser, isLoading }: MessageThrea
                       </div>
                     )}
 
-                    <div
-                      className={cn(
-                        "mt-1 rounded-lg p-3",
-                        isCurrentUser ? "bg-primary text-primary-foreground" : "bg-muted",
+                    <div className="flex items-end gap-1">
+                      <div
+                        className={cn(
+                          "mt-1 rounded-lg p-3",
+                          isCurrentUser ? "bg-primary text-primary-foreground" : "bg-muted",
+                        )}
+                      >
+                        <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                      </div>
+
+                      {/* Read receipt indicator - only show for sender's messages and at the end of a message group */}
+                      {isCurrentUser && isLastMessageOfSender && (
+                        <div className="flex items-center mb-1 ml-1">
+                          {message.is_read ? (
+                            <CheckCheck className="h-4 w-4 text-primary" aria-label="Read" />
+                          ) : (
+                            <Check className="h-4 w-4 text-muted-foreground" aria-label="Delivered" />
+                          )}
+                        </div>
                       )}
-                    >
-                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
                     </div>
                   </div>
                 </div>

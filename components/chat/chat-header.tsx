@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { UserList } from "./user-list"
 import { Hash, Users } from "lucide-react"
 
@@ -24,6 +24,7 @@ export function ChatHeader() {
           </Button>
         </SheetTrigger>
         <SheetContent side="right">
+          <SheetTitle className="text-lg font-semibold">Participants</SheetTitle>
           <UserList />
         </SheetContent>
       </Sheet>

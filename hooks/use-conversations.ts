@@ -58,7 +58,7 @@ export function useConversations() {
 
         if (conversationsError) throw conversationsError
 
-        // For each conversation, get the other participant
+        // For each conversation, get the other participant and last message
         const conversationsWithParticipants = await Promise.all(
           conversationsData.map(async (conversation) => {
             // Get all participants
@@ -73,23 +73,35 @@ export function useConversations() {
             const otherParticipant = participants?.find((p) => p.user_id !== user.id)?.profile || null
 
             // Get the last message
-            const { data: lastMessage, error: lastMessageError } = await supabase
+            const { data: lastMessages, error: lastMessageError } = await supabase
               .from("direct_messages")
               .select("*")
               .eq("conversation_id", conversation.id)
               .order("created_at", { ascending: false })
               .limit(1)
-              .single()
 
             if (lastMessageError && lastMessageError.code !== "PGRST116") {
               // PGRST116 is the error code for no rows returned
               throw lastMessageError
             }
 
+            const lastMessage = lastMessages && lastMessages.length > 0 ? lastMessages[0] : null
+
+            // Count unread messages
+            const { count: unreadCount, error: unreadError } = await supabase
+              .from("direct_messages")
+              .select("*", { count: "exact", head: true })
+              .eq("conversation_id", conversation.id)
+              .eq("is_read", false)
+              .neq("sender_id", user.id)
+
+            if (unreadError) throw unreadError
+
             return {
               ...conversation,
               other_participant: otherParticipant,
-              last_message: lastMessage || null,
+              last_message: lastMessage,
+              unread_count: unreadCount || 0,
             }
           }),
         )
@@ -136,9 +148,27 @@ export function useConversations() {
       )
       .subscribe()
 
+    // Subscribe to read status changes
+    const readStatusChannel = supabase
+      .channel("read_status_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "direct_messages",
+          filter: "is_read=eq.true",
+        },
+        () => {
+          fetchConversations()
+        },
+      )
+      .subscribe()
+
     return () => {
       supabase.removeChannel(conversationsChannel)
       supabase.removeChannel(messagesChannel)
+      supabase.removeChannel(readStatusChannel)
     }
   }, [supabase])
 

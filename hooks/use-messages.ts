@@ -89,8 +89,31 @@ export function useMessages(conversationId: string | null) {
       )
       .subscribe()
 
+    // Subscribe to read status changes
+    const readStatusChannel = supabase
+      .channel(`read_status:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "direct_messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          // Update the read status of the message in the state
+          if (payload.new && payload.new.is_read !== undefined) {
+            setMessages((prevMessages) =>
+              prevMessages.map((msg) => (msg.id === payload.new.id ? { ...msg, is_read: payload.new.is_read } : msg)),
+            )
+          }
+        },
+      )
+      .subscribe()
+
     return () => {
       supabase.removeChannel(messagesChannel)
+      supabase.removeChannel(readStatusChannel)
     }
   }, [supabase, conversationId])
 
@@ -111,6 +134,12 @@ export function useMessages(conversationId: string | null) {
       })
 
       if (error) throw error
+
+      // Update the conversation's updated_at timestamp
+      await supabase
+        .from("direct_conversations")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", conversationId)
 
       return true
     } catch (error) {

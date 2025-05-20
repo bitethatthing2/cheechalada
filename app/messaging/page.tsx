@@ -23,7 +23,7 @@ export default function MessagingPage() {
   return (
     <div className="grid h-full md:grid-cols-[320px_1fr]">
       <div className="flex flex-col border-r h-full">
-        <ConversationList conversations={conversations} isLoading={isLoading} />
+        <ConversationList conversations={conversations} isLoading={isLoading} currentUserId={currentUser?.id} />
         <Separator />
         <OnlineUsers users={onlineUsers} isLoading={isLoadingOnlineUsers} currentUserId={currentUser?.id} />
       </div>

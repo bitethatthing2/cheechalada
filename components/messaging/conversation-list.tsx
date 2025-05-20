@@ -16,9 +16,10 @@ import { format, isToday, isYesterday } from "date-fns"
 interface ConversationListProps {
   conversations: DirectConversation[]
   isLoading: boolean
+  currentUserId?: string
 }
 
-export function ConversationList({ conversations, isLoading }: ConversationListProps) {
+export function ConversationList({ conversations, isLoading, currentUserId }: ConversationListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
 
@@ -81,7 +82,7 @@ export function ConversationList({ conversations, isLoading }: ConversationListP
               const hasUnread =
                 conversation.last_message &&
                 !conversation.last_message.is_read &&
-                conversation.last_message.sender_id !== conversation.other_participant?.id
+                conversation.last_message.sender_id !== currentUserId
 
               return (
                 <Link key={conversation.id} href={`/messaging/${conversation.id}`}>
@@ -94,18 +95,23 @@ export function ConversationList({ conversations, isLoading }: ConversationListP
                     )}
                   >
                     <div className="flex items-start gap-3 w-full">
-                      <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarImage
-                          src={conversation.other_participant?.avatar_url || undefined}
-                          alt={conversation.other_participant?.username || "User"}
-                        />
-                        <AvatarFallback>
-                          {conversation.other_participant?.username?.charAt(0).toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="relative">
+                        <Avatar className="h-10 w-10 flex-shrink-0">
+                          <AvatarImage
+                            src={conversation.other_participant?.avatar_url || undefined}
+                            alt={conversation.other_participant?.username || "User"}
+                          />
+                          <AvatarFallback>
+                            {conversation.other_participant?.username?.charAt(0).toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        {hasUnread && (
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-baseline">
-                          <span className="font-medium truncate">
+                          <span className={cn("truncate", hasUnread && "font-medium")}>
                             {conversation.other_participant?.full_name ||
                               conversation.other_participant?.username ||
                               "User"}
@@ -128,7 +134,6 @@ export function ConversationList({ conversations, isLoading }: ConversationListP
                         )}
                       </div>
                     </div>
-                    {hasUnread && <div className="ml-auto w-2 h-2 bg-primary rounded-full flex-shrink-0" />}
                   </Button>
                 </Link>
               )

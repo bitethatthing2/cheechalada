@@ -54,6 +54,7 @@ export type DirectConversation = {
   participants?: DirectParticipant[]
   last_message?: DirectMessage
   other_participant?: Profile // For convenience in UI
+  unread_count?: number // Number of unread messages
 }
 
 export type DirectParticipant = {

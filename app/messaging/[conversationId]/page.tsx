@@ -1,6 +1,4 @@
 "use client"
-
-import { useEffect } from "react"
 import { useConversations } from "@/hooks/use-conversations"
 import { useMessages } from "@/hooks/use-messages"
 import { ConversationHeader } from "@/components/messaging/conversation-header"
@@ -10,7 +8,7 @@ import { ConversationList } from "@/components/messaging/conversation-list"
 import { OnlineUsers } from "@/components/messaging/online-users"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
 import { useState } from "react"
@@ -26,11 +24,6 @@ export default function ConversationPage({ params }: { params: { conversationId:
   const currentConversation = conversations.find((c) => c.id === conversationId)
   const otherParticipant = currentConversation?.other_participant
 
-  // Update online status
-  useEffect(() => {
-    // This is handled by the useOnlineStatus hook
-  }, [])
-
   return (
     <div className="grid h-full md:grid-cols-[320px_1fr]">
       {/* Mobile menu button */}
@@ -43,8 +36,13 @@ export default function ConversationPage({ params }: { params: { conversationId:
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-80">
+            <SheetTitle className="sr-only">Conversations</SheetTitle>
             <div className="flex flex-col h-full">
-              <ConversationList conversations={conversations} isLoading={isLoadingConversations} />
+              <ConversationList
+                conversations={conversations}
+                isLoading={isLoadingConversations}
+                currentUserId={currentUser?.id}
+              />
               <Separator />
               <OnlineUsers users={onlineUsers} isLoading={isLoadingOnlineUsers} currentUserId={currentUser?.id} />
             </div>
@@ -54,7 +52,11 @@ export default function ConversationPage({ params }: { params: { conversationId:
 
       {/* Sidebar - hidden on mobile */}
       <div className="hidden md:flex flex-col border-r h-full">
-        <ConversationList conversations={conversations} isLoading={isLoadingConversations} />
+        <ConversationList
+          conversations={conversations}
+          isLoading={isLoadingConversations}
+          currentUserId={currentUser?.id}
+        />
         <Separator />
         <OnlineUsers users={onlineUsers} isLoading={isLoadingOnlineUsers} currentUserId={currentUser?.id} />
       </div>
