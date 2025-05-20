@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Prevent static optimization for dynamic routes that need Supabase
+  serverExternalPackages: ['@supabase/ssr'],
 }
 
 export default nextConfig

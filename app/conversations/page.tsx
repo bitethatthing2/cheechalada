@@ -1,68 +1,26 @@
-"use client"
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { createClient } from '@/lib/supabase/server';
+import ConversationsClient from './conversations-client';
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/db/supabase"
-import ConversationList from "@/components/conversation/ConversationList"
-import { Button } from "@/components/ui/button"
-import { PlusCircle, Loader2 } from "lucide-react"
-import Link from "next/link"
+// Force this route to be dynamic, not statically generated
+export const dynamic = 'force-dynamic';
 
-export default function ConversationsPage() {
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+export default async function ConversationsPage() {
+  // Create client - will only run on the server
+  const supabase = await createClient();
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        setLoading(true)
-
-        // Get current user
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        setCurrentUserId(user?.id || null)
-      } catch (error) {
-        console.error("Error loading user:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadUser()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
-  if (!currentUserId) {
-    return (
-      <div className="text-center p-4">
-        <p>Please log in to view your conversations</p>
-        <Button asChild className="mt-2">
-          <Link href="/login">Login</Link>
-        </Button>
-      </div>
-    )
+  // Get user
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    // If no user, redirect to login
+    return redirect('/auth/login');
   }
 
   return (
-    <div className="container max-w-4xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Conversations</h1>
-        <Button asChild>
-          <Link href="/conversations/new">
-            <PlusCircle className="h-4 w-4 mr-2" />
-            New Conversation
-          </Link>
-        </Button>
-      </div>
-
-      <ConversationList userId={currentUserId} />
-    </div>
-  )
+    <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading conversations...</div>}>
+      <ConversationsClient userId={user.id} />
+    </Suspense>
+  );
 }
