@@ -2,8 +2,8 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/router"
-// Import from client-safe version instead of server version
-import { createClient } from "@/lib/supabase/client-safe"
+// Import from browser-safe version
+import { createClient } from "@/lib/supabase/client-browser"
 
 export default function Home() {
   const router = useRouter()

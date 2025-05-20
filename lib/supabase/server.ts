@@ -24,3 +24,11 @@ export async function createClient() {
 
 // Add the missing named export
 export const createServerClient = createClient
+
+// Re-export from the browser-safe client to avoid breaking changes
+// This ensures any imports of createClient from server.ts will work
+// without requiring next/headers
+
+import { createBrowserClient } from "./client-browser"
+
+export { createBrowserClient }

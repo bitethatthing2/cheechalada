@@ -12,13 +12,14 @@ export async function middleware(request: NextRequest) {
   })
 
   // Get the auth token from the request cookies
-  const authCookie = request.cookies.get("sb-auth-token")?.value
+  const authCookie = request.cookies.get("sb-access-token")?.value
+  const refreshCookie = request.cookies.get("sb-refresh-token")?.value
 
-  if (authCookie) {
+  if (authCookie && refreshCookie) {
     // Set the auth token for this request
     supabase.auth.setSession({
       access_token: authCookie,
-      refresh_token: "",
+      refresh_token: refreshCookie,
     })
   }
 
@@ -36,8 +37,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Check if user is admin (you'll need to implement this logic)
-    const isAdmin = false // Replace with your admin check logic
+    // Check if user is admin (simplified check - replace with your logic)
+    const isAdmin = user.email?.includes("admin") || false
 
     if (!isAdmin) {
       // Redirect to unauthorized page
