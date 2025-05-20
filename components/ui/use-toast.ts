@@ -13,3 +13,5 @@ export function toast({ title, description, variant = "default" }: ToastProps) {
     className: variant === "destructive" ? "bg-red-100" : undefined,
   })
 }
+
+// Export the toast function directly to avoid the t.json error

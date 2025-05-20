@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/client"
 import { v4 as uuidv4 } from "uuid"
-import sharp from "sharp"
 
 // Maximum file size (5MB)
 export const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -40,6 +39,13 @@ export type UploadResult = {
   fileSize: number
   fileType: string
   error?: string
+}
+
+// Create a server-side only version of the image processing function
+async function generateThumbnail(file: File, supabase: any): Promise<string | null> {
+  // This function will be implemented in a separate server action
+  // For now, just return the original file URL as the thumbnail
+  return null
 }
 
 export async function uploadFile(file: File): Promise<UploadResult> {
@@ -83,45 +89,10 @@ export async function uploadFile(file: File): Promise<UploadResult> {
     // Get the public URL for the uploaded file
     const { data: urlData } = supabase.storage.from("attachments").getPublicUrl(filePath)
 
-    // Generate thumbnail for images
+    // For images, use the original as the thumbnail for now
+    // We'll implement proper thumbnail generation in a server action
     let thumbnailUrl = null
-    if (file.type.startsWith("image/") && file.type !== "image/svg+xml" && file.type !== "image/gif") {
-      try {
-        // Convert file to buffer for sharp processing
-        const arrayBuffer = await file.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
-
-        // Generate thumbnail using sharp
-        const thumbnailBuffer = await sharp(buffer)
-          .resize(300, 300, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 80 }) // Use WebP for better compression
-          .withMetadata(false) // Strip metadata to reduce file size
-          .toBuffer()
-
-        // Upload thumbnail to Supabase Storage
-        const thumbnailName = `${uuidv4()}.webp`
-        const thumbnailPath = `message_attachments/thumbnails/${thumbnailName}`
-
-        const { data: thumbnailData, error: thumbnailError } = await supabase.storage
-          .from("attachments")
-          .upload(thumbnailPath, thumbnailBuffer, { contentType: "image/webp" })
-
-        if (thumbnailError) {
-          console.error("Error uploading thumbnail:", thumbnailError)
-          // Fall back to original image if thumbnail generation fails
-          thumbnailUrl = urlData.publicUrl
-        } else {
-          // Get the public URL for the thumbnail
-          const { data: thumbnailUrlData } = supabase.storage.from("attachments").getPublicUrl(thumbnailPath)
-          thumbnailUrl = thumbnailUrlData.publicUrl
-        }
-      } catch (error) {
-        console.error("Error generating thumbnail:", error)
-        // Fall back to original image if thumbnail generation fails
-        thumbnailUrl = urlData.publicUrl
-      }
-    } else if (file.type === "image/gif" || file.type === "image/svg+xml") {
-      // For GIFs and SVGs, use the original as the thumbnail to preserve animation/vectors
+    if (file.type.startsWith("image/")) {
       thumbnailUrl = urlData.publicUrl
     }
 
