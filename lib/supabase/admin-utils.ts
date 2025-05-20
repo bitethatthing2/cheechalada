@@ -1,5 +1,4 @@
-import { createClient as createClientBrowser } from "@/lib/supabase/client"
-import { createClient } from "@/lib/supabase/server"
+import { createClient as createClientBrowser } from "@/lib/supabase/client-browser"
 
 // List of admin email addresses
 // In a production app, you would store this in a database table
@@ -19,9 +18,10 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
 
 /**
  * Checks if the current user is an admin (server-side)
+ * This is a browser-safe version that works in both client and server components
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
-  const supabase = await createClient()
+  const supabase = createClientBrowser()
 
   // Get the user's email
   const { data, error } = await supabase.from("profiles").select("email").eq("id", userId).single()
@@ -36,7 +36,7 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
  * This should only be used in admin-protected routes
  */
 export async function getDataForAllUsers<T>(tableName: string, columns = "*"): Promise<T[]> {
-  const supabase = await createClient()
+  const supabase = createClientBrowser()
 
   // Use service role to bypass RLS
   const { data, error } = await supabase.from(tableName).select(columns)
@@ -54,7 +54,7 @@ export async function getDataForAllUsers<T>(tableName: string, columns = "*"): P
  * This should only be used in admin-protected routes
  */
 export async function updateDataAsAdmin<T>(tableName: string, id: string, updates: Partial<T>): Promise<T> {
-  const supabase = await createClient()
+  const supabase = createClientBrowser()
 
   // Use service role to bypass RLS
   const { data, error } = await supabase.from(tableName).update(updates).eq("id", id).select().single()
@@ -72,7 +72,7 @@ export async function updateDataAsAdmin<T>(tableName: string, id: string, update
  * This should only be used in admin-protected routes
  */
 export async function deleteDataAsAdmin(tableName: string, id: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createClientBrowser()
 
   // Use service role to bypass RLS
   const { error } = await supabase.from(tableName).delete().eq("id", id)
