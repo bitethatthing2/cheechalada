@@ -7,7 +7,17 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Menu, X, LayoutDashboard, CheckSquare, User, Settings, MessageSquare, LogOut } from "lucide-react"
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  CheckSquare,
+  User,
+  Settings,
+  MessageSquare,
+  LogOut,
+  MessageCircle,
+} from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import type { Profile } from "@/lib/types"
@@ -28,6 +38,11 @@ const items = [
     title: "Chat",
     href: "/dashboard/chat",
     icon: MessageSquare,
+  },
+  {
+    title: "Messages",
+    href: "/messaging",
+    icon: MessageCircle,
   },
   {
     title: "Profile",
@@ -121,7 +136,7 @@ export function MobileNav() {
           </div>
           <nav className="flex-1 overflow-auto p-2">
             {items.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
               return (
                 <Link
                   key={item.href}

@@ -39,3 +39,37 @@ export type ChatRoom = {
   created_at: string
   created_by: string | null
 }
+
+export type OnlineStatus = {
+  id: string
+  user_id: string
+  last_seen: string
+  is_online: boolean
+}
+
+export type DirectConversation = {
+  id: string
+  created_at: string
+  updated_at: string
+  participants?: DirectParticipant[]
+  last_message?: DirectMessage
+  other_participant?: Profile // For convenience in UI
+}
+
+export type DirectParticipant = {
+  id: string
+  conversation_id: string
+  user_id: string
+  created_at: string
+  profile?: Profile
+}
+
+export type DirectMessage = {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  created_at: string
+  is_read: boolean
+  sender?: Profile
+}

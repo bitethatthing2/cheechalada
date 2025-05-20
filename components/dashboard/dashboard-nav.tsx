@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, CheckSquare, User, Settings, MessageSquare } from "lucide-react"
+import { LayoutDashboard, CheckSquare, User, Settings, MessageSquare, MessageCircle } from "lucide-react"
 
 const items = [
   {
@@ -20,6 +20,11 @@ const items = [
     title: "Chat",
     href: "/dashboard/chat",
     icon: MessageSquare,
+  },
+  {
+    title: "Messages",
+    href: "/messaging",
+    icon: MessageCircle,
   },
   {
     title: "Profile",
@@ -39,7 +44,7 @@ export function DashboardNav() {
   return (
     <nav className="grid items-start gap-2 px-2 py-4">
       {items.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
         return (
           <Link
             key={item.href}
