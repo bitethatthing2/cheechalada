@@ -264,3 +264,6 @@ function TableSecurityList({ tables, loading, onApplyFix, applyingFix }: TableSe
     </div>
   )
 }
+
+// Add dynamic export to prevent prerendering
+export const dynamic = "force-dynamic"

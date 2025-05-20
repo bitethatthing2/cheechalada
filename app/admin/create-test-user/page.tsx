@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import CreateTestUser from "@/scripts/create-test-user"
 
-// Fix: Use 'force-dynamic' with a hyphen instead of 'force_dynamic' with an underscore
+// Add dynamic export to prevent prerendering
 export const dynamic = "force-dynamic"
 
 export default function CreateTestUserPage() {

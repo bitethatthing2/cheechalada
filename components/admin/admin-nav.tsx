@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, Shield, Database, MessageSquare, Settings } from "lucide-react"
+import { LayoutDashboard, Users, Shield, Database, MessageSquare } from "lucide-react"
 
 const items = [
   {
@@ -13,7 +13,7 @@ const items = [
   },
   {
     title: "Users",
-    href: "/admin/users",
+    href: "/admin/data-manager",
     icon: Users,
   },
   {
@@ -27,6 +27,11 @@ const items = [
     icon: Shield,
   },
   {
+    title: "Security Test",
+    href: "/admin/security-test",
+    icon: Shield,
+  },
+  {
     title: "Storage Setup",
     href: "/admin/setup-storage",
     icon: Database,
@@ -35,11 +40,6 @@ const items = [
     title: "Create Test User",
     href: "/admin/create-test-user",
     icon: Users,
-  },
-  {
-    title: "System Settings",
-    href: "/admin/settings",
-    icon: Settings,
   },
 ]
 

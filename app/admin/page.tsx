@@ -62,3 +62,6 @@ export default function AdminPage() {
     </div>
   )
 }
+
+// Add dynamic export to prevent prerendering
+export const dynamic = "force-dynamic"

@@ -18,7 +18,7 @@ import {
   testRlsPolicies,
   type SecurityTestItem,
 } from "@/lib/supabase/security-test"
-import { createClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client-browser"
 
 export default function SecurityTestPage() {
   const [items, setItems] = useState<SecurityTestItem[]>([])
@@ -331,3 +331,6 @@ export default function SecurityTestPage() {
     </div>
   )
 }
+
+// Add dynamic export to prevent prerendering
+export const dynamic = "force-dynamic"
