@@ -39,6 +39,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
         if (data.session) {
           // User is already logged in, redirect
+          console.log("Already logged in, redirecting to:", redirectTo)
           router.replace(redirectTo)
         }
       } catch (error) {
@@ -73,6 +74,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         })
 
         // Use replace instead of push to avoid back button issues
+        console.log("Login successful, redirecting to:", redirectTo)
         router.replace(redirectTo)
       }
     } catch (error: unknown) {
