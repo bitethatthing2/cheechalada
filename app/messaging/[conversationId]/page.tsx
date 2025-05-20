@@ -89,19 +89,31 @@ export default function ConversationPage({ params }: { params: { conversationId:
     setActiveThread(null)
   }
 
+  // Handle sending a message
+  const handleSendMessage = async (content: string, attachments = []) => {
+    const parentMessageId = replyToMessage?.id
+    const success = await sendMessage(content, attachments, parentMessageId)
+    if (success && replyToMessage) {
+      handleClearReply()
+    }
+    return success
+  }
+
   return (
     <div className="grid h-full md:grid-cols-[320px_1fr]">
       {/* Keyboard shortcuts */}
       <KeyboardShortcuts onSearchOpen={() => setIsSearchOpen(true)} />
 
       {/* Thread view */}
-      <ThreadView
-        isOpen={isThreadViewOpen}
-        onClose={handleCloseThreadView}
-        parentMessage={activeThread}
-        currentUser={currentUser}
-        conversationId={conversationId}
-      />
+      {isThreadViewOpen && activeThread && (
+        <ThreadView
+          isOpen={isThreadViewOpen}
+          onClose={handleCloseThreadView}
+          parentMessage={activeThread}
+          currentUser={currentUser}
+          conversationId={conversationId}
+        />
+      )}
 
       {/* Mobile menu button */}
       <div className="md:hidden fixed top-4 left-4 z-10">
@@ -177,7 +189,7 @@ export default function ConversationPage({ params }: { params: { conversationId:
         </div>
 
         <MessageInput
-          onSendMessage={sendMessage}
+          onSendMessage={handleSendMessage}
           onTyping={setTypingStatus}
           disabled={isLoadingMessages || !conversationId}
           replyToMessage={replyToMessage}
