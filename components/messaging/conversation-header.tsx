@@ -2,15 +2,23 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Phone, Video } from "lucide-react"
+import { KeyboardShortcutsHelp } from "@/components/messaging/keyboard-shortcuts-help"
+import { MoreHorizontal, Phone, Video, Search } from "lucide-react"
 import type { Profile } from "@/lib/types"
 
 interface ConversationHeaderProps {
   participant: Profile | null | undefined
   isLoading: boolean
+  isTyping?: boolean
+  onSearchClick?: () => void
 }
 
-export function ConversationHeader({ participant, isLoading }: ConversationHeaderProps) {
+export function ConversationHeader({
+  participant,
+  isLoading,
+  isTyping = false,
+  onSearchClick,
+}: ConversationHeaderProps) {
   if (isLoading) {
     return (
       <div className="border-b p-4 flex items-center justify-between">
@@ -41,10 +49,17 @@ export function ConversationHeader({ participant, isLoading }: ConversationHeade
         </Avatar>
         <div>
           <h3 className="font-medium">{participant.full_name || participant.username}</h3>
-          <p className="text-xs text-green-500">Online</p>
+          <p className="text-xs text-green-500">{isTyping ? "Typing..." : "Online"}</p>
         </div>
       </div>
       <div className="flex items-center gap-1">
+        {onSearchClick && (
+          <Button variant="ghost" size="icon" className="rounded-full" onClick={onSearchClick}>
+            <Search className="h-5 w-5" />
+            <span className="sr-only">Search messages</span>
+          </Button>
+        )}
+        <KeyboardShortcutsHelp />
         <Button variant="ghost" size="icon" className="rounded-full">
           <Phone className="h-5 w-5" />
           <span className="sr-only">Call</span>

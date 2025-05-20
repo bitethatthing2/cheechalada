@@ -65,6 +65,17 @@ export type DirectParticipant = {
   profile?: Profile
 }
 
+export type FileAttachment = {
+  id: string
+  message_id: string
+  file_name: string
+  file_size: number
+  file_type: string
+  file_url: string
+  thumbnail_url?: string | null
+  created_at: string
+}
+
 export type DirectMessage = {
   id: string
   conversation_id: string
@@ -72,5 +83,20 @@ export type DirectMessage = {
   content: string
   created_at: string
   is_read: boolean
+  has_attachment: boolean
+  parent_message_id?: string | null
+  thread_count?: number
   sender?: Profile
+  reactions?: MessageReaction[]
+  attachments?: FileAttachment[]
+  parent_message?: DirectMessage | null
+}
+
+export type MessageReaction = {
+  id: string
+  message_id: string
+  user_id: string
+  emoji: string
+  created_at: string
+  user?: Profile
 }

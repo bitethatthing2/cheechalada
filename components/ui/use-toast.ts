@@ -8,8 +8,8 @@ type ToastProps = {
 }
 
 export function toast({ title, description, variant = "default" }: ToastProps) {
-  sonnerToast(title, {
-    description,
+  sonnerToast(title || description, {
+    description: title ? description : undefined,
     className: variant === "destructive" ? "bg-red-100" : undefined,
   })
 }
