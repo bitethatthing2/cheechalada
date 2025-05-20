@@ -15,48 +15,91 @@ export async function middleware(request: NextRequest) {
   const authCookie = request.cookies.get("sb-access-token")?.value
   const refreshCookie = request.cookies.get("sb-refresh-token")?.value
 
-  if (authCookie && refreshCookie) {
-    // Set the auth token for this request
-    supabase.auth.setSession({
-      access_token: authCookie,
-      refresh_token: refreshCookie,
-    })
+  // Check if we have auth cookies
+  const hasAuthCookies = authCookie && refreshCookie
+
+  // Get the current path
+  const path = request.nextUrl.pathname
+
+  // Skip middleware for auth-related paths
+  if (path.startsWith("/auth/") || path === "/auth") {
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    if (hasAuthCookies) {
+      try {
+        // Set the auth token for this request
+        await supabase.auth.setSession({
+          access_token: authCookie,
+          refresh_token: refreshCookie,
+        })
+
+        // Check if the session is valid
+        const { data } = await supabase.auth.getUser()
+
+        if (data.user) {
+          return NextResponse.redirect(new URL("/dashboard", request.url))
+        }
+      } catch (error) {
+        // If there's an error with the session, continue to the auth page
+        console.error("Auth error in middleware:", error)
+      }
+    }
+
+    // Allow access to auth pages for unauthenticated users
+    return NextResponse.next()
   }
 
-  // Check if the user is authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // For all other routes, check authentication
+  if (hasAuthCookies) {
+    try {
+      // Set the auth token for this request
+      await supabase.auth.setSession({
+        access_token: authCookie,
+        refresh_token: refreshCookie,
+      })
 
-  // Admin routes protection
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!user) {
-      // Redirect to login if not authenticated
+      // Check if the user is authenticated
+      const { data } = await supabase.auth.getUser()
+      const user = data.user
+
+      if (!user) {
+        // Invalid session, redirect to login
+        const redirectUrl = new URL("/auth/login", request.url)
+        redirectUrl.searchParams.set("redirect", path)
+        return NextResponse.redirect(redirectUrl)
+      }
+
+      // Admin routes protection
+      if (path.startsWith("/admin")) {
+        // Check if user is admin (simplified check - replace with your logic)
+        const isAdmin = user.email?.includes("admin") || false
+
+        if (!isAdmin) {
+          // Redirect to unauthorized page
+          return NextResponse.redirect(new URL("/unauthorized", request.url))
+        }
+      }
+
+      // User is authenticated and authorized, continue
+      return NextResponse.next()
+    } catch (error) {
+      console.error("Auth error in middleware:", error)
+      // Error with authentication, redirect to login
       const redirectUrl = new URL("/auth/login", request.url)
-      redirectUrl.searchParams.set("redirect", request.nextUrl.pathname)
+      redirectUrl.searchParams.set("redirect", path)
+      return NextResponse.redirect(redirectUrl)
+    }
+  } else {
+    // No auth cookies, check if route requires authentication
+    if (path.startsWith("/dashboard") || path.startsWith("/messaging") || path.startsWith("/admin")) {
+      // Redirect to login
+      const redirectUrl = new URL("/auth/login", request.url)
+      redirectUrl.searchParams.set("redirect", path)
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Check if user is admin (simplified check - replace with your logic)
-    const isAdmin = user.email?.includes("admin") || false
-
-    if (!isAdmin) {
-      // Redirect to unauthorized page
-      return NextResponse.redirect(new URL("/unauthorized", request.url))
-    }
+    // Public route, continue
+    return NextResponse.next()
   }
-
-  // Protected routes
-  if (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/messaging")) {
-    if (!user) {
-      // Redirect to login if not authenticated
-      const redirectUrl = new URL("/auth/login", request.url)
-      redirectUrl.searchParams.set("redirect", request.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
-    }
-  }
-
-  return NextResponse.next()
 }
 
 export const config = {
