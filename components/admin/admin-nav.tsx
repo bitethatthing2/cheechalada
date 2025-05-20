@@ -3,47 +3,47 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, CheckSquare, User, Settings, MessageSquare, MessageCircle, Shield } from "lucide-react"
+import { LayoutDashboard, Users, Shield, Database, MessageSquare, Settings } from "lucide-react"
 
 const items = [
   {
     title: "Overview",
-    href: "/dashboard",
+    href: "/admin",
     icon: LayoutDashboard,
   },
   {
-    title: "Tasks",
-    href: "/dashboard/tasks",
-    icon: CheckSquare,
+    title: "Users",
+    href: "/admin/users",
+    icon: Users,
   },
   {
-    title: "Chat",
-    href: "/dashboard/chat",
+    title: "Chat Rooms",
+    href: "/admin/chat-rooms",
     icon: MessageSquare,
   },
   {
-    title: "Messages",
-    href: "/messaging",
-    icon: MessageCircle,
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/profile",
-    icon: User,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
-  {
-    title: "Admin",
-    href: "/admin",
+    title: "Security Audit",
+    href: "/admin/security-audit",
     icon: Shield,
+  },
+  {
+    title: "Storage Setup",
+    href: "/admin/setup-storage",
+    icon: Database,
+  },
+  {
+    title: "Create Test User",
+    href: "/admin/create-test-user",
+    icon: Users,
+  },
+  {
+    title: "System Settings",
+    href: "/admin/settings",
+    icon: Settings,
   },
 ]
 
-export function DashboardNav() {
+export function AdminNav() {
   const pathname = usePathname()
 
   return (

@@ -17,6 +17,7 @@ import {
   MessageSquare,
   LogOut,
   MessageCircle,
+  Shield,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -53,6 +54,11 @@ const items = [
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
+  },
+  {
+    title: "Admin",
+    href: "/admin",
+    icon: Shield,
   },
 ]
 

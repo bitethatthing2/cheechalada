@@ -80,6 +80,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
               <div className="grid gap-2">
@@ -92,6 +93,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                   required
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}

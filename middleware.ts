@@ -1,50 +1,49 @@
-import { updateSession } from "@/lib/supabase/middleware"
-import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+
+// List of admin email addresses
+// In a production app, you would store this in a database table
+const ADMIN_EMAILS = ["admin@example.com"] // Replace with actual admin emails
 
 export async function middleware(request: NextRequest) {
-  const res = await updateSession(request)
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Missing Supabase URL or key")
+  // Only run this middleware for admin routes
+  if (!request.nextUrl.pathname.startsWith("/admin")) {
+    return NextResponse.next()
   }
 
-  const response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+  try {
+    // Create a Supabase client
+    const supabase = await createClient()
 
-  const user = await res.user
+    // Get the current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user && !request.nextUrl.pathname.startsWith("/login") && !request.nextUrl.pathname.startsWith("/auth")) {
-    // no user, redirect to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = "/auth/login"
-    return NextResponse.redirect(url)
+    // If no user is logged in, redirect to login
+    if (!user) {
+      const redirectUrl = new URL("/auth/login", request.url)
+      redirectUrl.searchParams.set("redirect", request.nextUrl.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Check if the user is an admin
+    const isAdmin = ADMIN_EMAILS.includes(user.email || "")
+
+    // If not an admin, redirect to unauthorized page
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL("/unauthorized", request.url))
+    }
+
+    // User is an admin, allow access
+    return NextResponse.next()
+  } catch (error) {
+    console.error("Error in admin middleware:", error)
+    return NextResponse.redirect(new URL("/auth/login", request.url))
   }
-
-  // If user is authenticated and tries to access the protected test page, redirect to dashboard
-  if (user && request.nextUrl.pathname === "/protected") {
-    const url = request.nextUrl.clone()
-    url.pathname = "/dashboard"
-    return NextResponse.redirect(url)
-  }
-
-  return response
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/admin/:path*"],
 }

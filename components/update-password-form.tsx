@@ -17,7 +17,7 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
@@ -43,7 +43,7 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
           <CardDescription>Please enter your new password below.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleForgotPassword}>
+          <form onSubmit={handleUpdatePassword}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="password">New password</Label>
@@ -54,6 +54,7 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
@@ -67,3 +68,6 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
     </div>
   )
 }
+
+// Add default export for compatibility
+export default UpdatePasswordForm

@@ -69,6 +69,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                   />
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
@@ -89,3 +90,6 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     </div>
   )
 }
+
+// Add default export for compatibility
+export default ForgotPasswordForm
