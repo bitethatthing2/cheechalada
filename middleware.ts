@@ -36,6 +36,7 @@ export async function middleware(request: NextRequest) {
         const { data } = await supabase.auth.getUser()
 
         if (data.user) {
+          // Redirect to dashboard
           return NextResponse.redirect(new URL("/dashboard", request.url))
         }
       } catch (error) {
@@ -86,7 +87,7 @@ export async function middleware(request: NextRequest) {
       // Error with authentication, redirect to login
       const redirectUrl = new URL("/auth/login", request.url)
       redirectUrl.searchParams.set("redirect", path)
-      return NextResponse.redirect(redirectUrl)
+      return NextResponse.next()
     }
   } else {
     // No auth cookies, check if route requires authentication
