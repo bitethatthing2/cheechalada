@@ -2,27 +2,33 @@
 
 import type React from "react"
 
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
+import { Loader2 } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client-browser"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
-import { Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
+  // State management
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(true)
+
+  // Hooks
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get("redirect") || "/dashboard"
+
+  // Get redirect path from URL or use default
+  const redirectTo = searchParams?.get("redirect") || "/dashboard"
 
   // Check if user is already logged in
   useEffect(() => {
@@ -33,7 +39,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
         if (data.session) {
           // User is already logged in, redirect
-          router.push(redirectTo)
+          router.replace(redirectTo)
         }
       } catch (error) {
         console.error("Error checking session:", error)
@@ -45,6 +51,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     checkSession()
   }, [router, redirectTo])
 
+  // Handle login form submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
@@ -80,11 +87,20 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     }
   }
 
+  // Show loading state while checking session
   if (isCheckingSession) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>Checking authentication status...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
